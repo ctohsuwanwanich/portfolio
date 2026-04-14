@@ -30,10 +30,10 @@
 */
 
 const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdZaH_svPudD52AJCswhtHJno5KriadKpt5dez-NSncRKWxKw/formResponse';
-const ENTRY_NAME        = 'entry.829646381=test';   
-const ENTRY_EMAIL       = 'entry.1112051136=test@test.com';   
-const ENTRY_SUBJECT     = 'entry.1891753752=test';   
-const ENTRY_MESSAGE     = 'entry.456460114=test';   
+const ENTRY_NAME        = 'entry.829646381';   
+const ENTRY_EMAIL       = 'entry.1112051136';   
+const ENTRY_SUBJECT     = 'entry.1891753752';   
+const ENTRY_MESSAGE     = 'entry.456460114';   
 
 /* ═══════════════════════════════════════════════════════════
    PAGE NAVIGATION
