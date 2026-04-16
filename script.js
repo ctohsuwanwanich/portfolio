@@ -1,40 +1,11 @@
 /* ═══════════════════════════════════════════════════════════
-   CONFIGURATION
+   CONFIGURATION — Google Form
 ══════════════════════════════════════════════════════════════ */
-
-/*
-  GOOGLE FORM SETUP — follow these steps once:
-
-  1. Go to forms.google.com → Create a new form with 4 fields:
-       Field 1: "Name"     (Short answer)
-       Field 2: "Email"    (Short answer)
-       Field 3: "Subject"  (Short answer)
-       Field 4: "Message"  (Paragraph)
-
-  2. Click the 3-dot menu (⋮) in the top right → "Get pre-filled link"
-     Fill dummy text in each field → click "Get Link" → copy the URL.
-
-  3. From the URL, extract each "entry.XXXXXXXXXX" value.
-     Example URL looks like:
-     https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform?
-       usp=pp_url
-       &entry.123456789=Name+Here
-       &entry.987654321=email%40here.com
-       ...
-
-  4. Paste your form's base URL (ending in /formResponse) into
-     GOOGLE_FORM_URL below, and paste each entry ID.
-
-  5. In Form Settings → Responses, enable "Collect email addresses: Off"
-     so anyone can submit without a Google account.
-*/
-
-
 const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdZaH_svPudD52AJCswhtHJno5KriadKpt5dez-NSncRKWxKw/formResponse';
-const ENTRY_NAME        = 'entry.829646381';   
-const ENTRY_EMAIL       = 'entry.1112051136';   
-const ENTRY_SUBJECT     = 'entry.1891753752';   
-const ENTRY_MESSAGE     = 'entry.456460114';   
+const ENTRY_NAME    = 'entry.829646381';
+const ENTRY_EMAIL   = 'entry.1112051136';
+const ENTRY_SUBJECT = 'entry.1891753752';
+const ENTRY_MESSAGE = 'entry.456460114';
 
 /* ═══════════════════════════════════════════════════════════
    PAGE NAVIGATION
@@ -46,34 +17,34 @@ const PAGE_IDS = {
   gallery: 'page-gallery',
   contact: 'page-contact'
 };
-const PAGE_ORDER    = ['about','research','gis','gallery','contact'];
+const PAGE_ORDER    = ['about', 'research', 'gis', 'gallery', 'contact'];
 const ANIM_MS       = 480;
 
 let current         = 'about';
 let isTransitioning = false;
 
 function showPage(key) {
-  const el = document.getElementById(PAGE_IDS[key]);
+  var el = document.getElementById(PAGE_IDS[key]);
   el.classList.add('active');
-  el.classList.remove('leaving','entering');
+  el.classList.remove('leaving', 'entering');
 }
 function hidePage(key) {
-  const el = document.getElementById(PAGE_IDS[key]);
-  el.classList.remove('active','leaving','entering');
+  var el = document.getElementById(PAGE_IDS[key]);
+  el.classList.remove('active', 'leaving', 'entering');
 }
 
 function goToPage(key) {
   if (key === current || isTransitioning) return;
   isTransitioning = true;
 
-  const outEl = document.getElementById(PAGE_IDS[current]);
-  const inEl  = document.getElementById(PAGE_IDS[key]);
+  var outEl = document.getElementById(PAGE_IDS[current]);
+  var inEl  = document.getElementById(PAGE_IDS[key]);
 
   outEl.classList.add('leaving');
 
-  setTimeout(() => {
-    outEl.classList.remove('active','leaving');
-    inEl.classList.add('active','entering');
+  setTimeout(function() {
+    outEl.classList.remove('active', 'leaving');
+    inEl.classList.add('active', 'entering');
 
     if (key === 'research') initResearchAnim();
     if (key === 'gis')      initGISAnim();
@@ -81,7 +52,7 @@ function goToPage(key) {
 
     window.scrollTo({ top: 0, behavior: 'instant' });
 
-    setTimeout(() => {
+    setTimeout(function() {
       inEl.classList.remove('entering');
       isTransitioning = false;
     }, ANIM_MS);
@@ -89,56 +60,63 @@ function goToPage(key) {
 
   current = key;
   document.getElementById('nav-select').value = key;
-  document.getElementById('back-nav').classList.toggle('visible', key !== 'about');
+  var backNav = document.getElementById('back-nav');
+  if (key !== 'about') {
+    backNav.classList.add('visible');
+  } else {
+    backNav.classList.remove('visible');
+  }
 }
 
 function goBack() {
-  const idx = PAGE_ORDER.indexOf(current);
+  var idx = PAGE_ORDER.indexOf(current);
   if (idx > 0) goToPage(PAGE_ORDER[idx - 1]);
 }
 
 /* ═══════════════════════════════════════════════════════════
    PAGE 2 — Research scroll animation
 ══════════════════════════════════════════════════════════════ */
-let researchObserver = null;
+var researchObserver = null;
 
 function initResearchAnim() {
   if (researchObserver) researchObserver.disconnect();
-  const notes = document.querySelectorAll('.research-note');
-  notes.forEach(n => n.classList.remove('torn-in','torn-out'));
+  var notes = document.querySelectorAll('.research-note');
+  notes.forEach(function(n) {
+    n.classList.remove('torn-in', 'torn-out');
+  });
 
-  researchObserver = new IntersectionObserver(entries => {
-    entries.forEach(e => {
+  researchObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
       if (e.isIntersecting) {
         e.target.classList.add('torn-in');
         e.target.classList.remove('torn-out');
       } else {
-        const r = e.target.getBoundingClientRect();
+        var r = e.target.getBoundingClientRect();
         if (r.top < 0) {
           e.target.classList.add('torn-out');
           e.target.classList.remove('torn-in');
         } else {
-          e.target.classList.remove('torn-in','torn-out');
+          e.target.classList.remove('torn-in', 'torn-out');
         }
       }
     });
   }, { threshold: 0.12, rootMargin: '-30px 0px' });
 
-  notes.forEach(n => researchObserver.observe(n));
+  notes.forEach(function(n) { researchObserver.observe(n); });
 }
 
 /* ═══════════════════════════════════════════════════════════
    PAGE 3 — GIS staggered entrance
 ══════════════════════════════════════════════════════════════ */
 function initGISAnim() {
-  const cards = document.querySelectorAll('.flip-card');
-  cards.forEach(c => {
+  var cards = document.querySelectorAll('.flip-card');
+  cards.forEach(function(c) {
     c.style.transition = 'none';
     c.style.opacity    = '0';
     c.style.transform  = 'translateY(24px)';
   });
-  cards.forEach((c, i) => {
-    setTimeout(() => {
+  cards.forEach(function(c, i) {
+    setTimeout(function() {
       c.style.transition = 'opacity 0.48s ease, transform 0.48s cubic-bezier(.22,.82,.22,1)';
       c.style.opacity    = '1';
       c.style.transform  = 'translateY(0)';
@@ -147,39 +125,41 @@ function initGISAnim() {
 }
 
 /* Flip cards — click toggle for touch devices */
-document.querySelectorAll('.flip-card').forEach(card => {
-  card.addEventListener('click', () => card.classList.toggle('flipped'));
+document.querySelectorAll('.flip-card').forEach(function(card) {
+  card.addEventListener('click', function() {
+    card.classList.toggle('flipped');
+  });
 });
 
 /* ═══════════════════════════════════════════════════════════
    PAGE 4 — Gallery & Lightbox
 ══════════════════════════════════════════════════════════════ */
-let galleryImages = [];
-let lbIndex = 0;
+var galleryImages = [];
+var lbIndex = 0;
 
 function initGallery() {
-  const items = document.querySelectorAll('.gallery-item');
-  galleryImages = Array.from(items).map(el => el.querySelector('img').src);
+  var items = document.querySelectorAll('.gallery-item');
+  galleryImages = Array.from(items).map(function(el) {
+    return el.querySelector('img').src;
+  });
 
-  items.forEach((item, i) => {
-    /* stagger-in each item */
+  items.forEach(function(item, i) {
     item.style.opacity   = '0';
     item.style.transform = 'translateY(18px)';
-    setTimeout(() => {
+    setTimeout(function() {
       item.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
       item.style.opacity    = '1';
       item.style.transform  = 'translateY(0)';
     }, i * 55 + 60);
 
-    /* lightbox click */
-    item.addEventListener('click', () => openLightbox(i));
+    item.addEventListener('click', function() { openLightbox(i); });
   });
 }
 
 function openLightbox(idx) {
   lbIndex = idx;
-  const lb  = document.getElementById('lightbox');
-  const img = document.getElementById('lb-img');
+  var lb  = document.getElementById('lightbox');
+  var img = document.getElementById('lb-img');
   img.src = galleryImages[idx];
   lb.classList.add('open');
   document.addEventListener('keydown', lbKeyHandler);
@@ -202,43 +182,37 @@ function lbKeyHandler(e) {
    PAGE 5 — Contact: Google Form submission
 ══════════════════════════════════════════════════════════════ */
 function sendContactForm() {
-  const name    = document.getElementById('cf-name').value.trim();
-  const email   = document.getElementById('cf-email').value.trim();
-  const subject = document.getElementById('cf-subject').value.trim();
-  const message = document.getElementById('cf-message').value.trim();
-  const errEl   = document.getElementById('form-error');
+  var name    = document.getElementById('cf-name').value.trim();
+  var email   = document.getElementById('cf-email').value.trim();
+  var subject = document.getElementById('cf-subject').value.trim();
+  var message = document.getElementById('cf-message').value.trim();
+  var errEl   = document.getElementById('form-error');
 
   if (!name || !email || !message) {
     errEl.style.display = 'block';
-    highlightEmpty(['cf-name','cf-email','cf-message']);
+    highlightEmpty(['cf-name', 'cf-email', 'cf-message']);
     return;
   }
   errEl.style.display = 'none';
 
-  /*
-    We submit to Google Forms via a hidden <iframe> to avoid a
-    page redirect. Google Forms accepts cross-origin POST to the
-    /formResponse endpoint — it just returns a CORS-blocked
-    response which we intentionally ignore.
-  */
-  const iframe = document.getElementById('gf-iframe') || createIframe();
+  var iframe = document.getElementById('gf-iframe');
 
-  const form = document.createElement('form');
+  var form = document.createElement('form');
   form.method  = 'POST';
   form.action  = GOOGLE_FORM_URL;
   form.target  = 'gf-iframe';
 
-  const fields = [
+  var fields = [
     [ENTRY_NAME,    name],
     [ENTRY_EMAIL,   email],
     [ENTRY_SUBJECT, subject || '(no subject)'],
     [ENTRY_MESSAGE, message]
   ];
-  fields.forEach(([name, value]) => {
-    const input = document.createElement('input');
+  fields.forEach(function(pair) {
+    var input = document.createElement('input');
     input.type  = 'hidden';
-    input.name  = name;
-    input.value = value;
+    input.name  = pair[0];
+    input.value = pair[1];
     form.appendChild(input);
   });
 
@@ -246,25 +220,15 @@ function sendContactForm() {
   form.submit();
   document.body.removeChild(form);
 
-  /* Show success after short delay (form posts async via iframe) */
-  setTimeout(() => {
+  setTimeout(function() {
     document.getElementById('contact-form-view').style.display    = 'none';
     document.getElementById('contact-success-view').style.display = 'block';
   }, 600);
 }
 
-function createIframe() {
-  const iframe = document.createElement('iframe');
-  iframe.name  = 'gf-iframe';
-  iframe.id    = 'gf-iframe';
-  iframe.style.display = 'none';
-  document.body.appendChild(iframe);
-  return iframe;
-}
-
 function highlightEmpty(ids) {
-  ids.forEach(id => {
-    const el = document.getElementById(id);
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
     if (!el.value.trim()) {
       el.style.borderColor = '#a02820';
       el.style.boxShadow   = '0 0 0 3px rgba(160,40,32,0.1)';
@@ -278,7 +242,7 @@ function highlightEmpty(ids) {
 }
 
 function resetContactForm() {
-  ['cf-name','cf-email','cf-subject','cf-message'].forEach(id => {
+  ['cf-name', 'cf-email', 'cf-subject', 'cf-message'].forEach(function(id) {
     document.getElementById(id).value = '';
   });
   document.getElementById('contact-form-view').style.display    = 'block';
